@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New DynamicForm{% endblock %}
+
+{% block body %}
+    <h1>Create new DynamicForm</h1>
+
+    {{ include('dynamic_form/_form.html.twig') }}
+
+    <a href="{{ path('dynamic_form_index') }}">back to list</a>
+{% endblock %}

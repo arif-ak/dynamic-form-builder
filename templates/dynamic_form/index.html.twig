@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DynamicForm index{% endblock %}
+
+{% block body %}
+    <h1>DynamicForm index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>UniqueId</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for dynamic_form in dynamic_forms %}
+            <tr>
+                <td>{{ dynamic_form.id }}</td>
+                <td>{{ dynamic_form.title }}</td>
+                <td>{{ dynamic_form.description }}</td>
+                <td>{{ dynamic_form.uniqueId }}</td>
+                <td>
+                    <a href="{{ path('dynamic_form_show', {'id': dynamic_form.id}) }}">show</a>
+                    <a href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('dynamic_form_new') }}">Create new</a>
+{% endblock %}

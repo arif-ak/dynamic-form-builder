@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DynamicForm{% endblock %}
+
+{% block body %}
+    <h1>Form - {{ dynamic_form.title }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Title</th>
+                <td>{{ dynamic_form.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ dynamic_form.description }}</td>
+            </tr>
+            <tr>
+                <th>UniqueId</th>
+                <td>{{ dynamic_form.uniqueId }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="form-row">
+        <a class="btn btn-info ml-0" href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">Edit Form</a>
+        <a class="btn btn-dark ml-1" href="{{ path('dynamic_form_index') }}">Back to form list</a>
+    </div>
+
+    <hr/>
+
+    <h1>Questions</h1>
+
+    <div class="form-row">
+        <div class="col-8">Question text</div>
+        <div class="col-2">Question type</div>
+        <div class="col-1"></div>
+        <div class="col-1"></div>
+        </div>
+    <hr/>
+
+    <div id="questions">
+        {% for question in questions %}
+            {{ include('question/_show_question.html.twig', {'question': question}) }}
+        {% endfor %}
+    </div>
+
+    <button class="form-row btn btn-success add-question">Add question</button>
+
+    {# include('dynamic_form/_delete_form.html.twig') #}
+
+    
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% set choice %}
+        {{ render(path('dynamic_form_question',{'form' : dynamic_form.id }))}}
+    {% endset %}
+
+    <script>
+        $(".add-question").click(function (e) {
+            $('#questions').append({{ choice }});
+        });
+
+        $('#questions').on( 'click', '.remove-question', function () {
+            $(this).parent().parent().parent().remove();
+        });
+
+        $( '#questions' ).on( 'click', '.save-question', function () {
+
+            var questionRow = $(this).closest('.question-row');
+            var questionRowForm = $(this).closest('.question-row').parent();
+            console.log(questionRow.find('.question-row-question').val());
+            console.log(questionRow.find('.question-row-type').val());
+
+            var saveUrl = '{{ path("dynamic_form_question", {"form": "form_id"}) }}';
+            saveUrl = saveUrl.replace("form_id", {{ dynamic_form.id }});
+
+            $.ajax({
+                'method': 'post',
+                'url': saveUrl,
+                'data' : {
+                    'question' : questionRow.find('.question-row-question').val(),
+                    'type' : questionRow.find('.question-row-type').val()
+                },
+                'success': function (data) {
+                    if (data.status == 'success') {
+                        
+                        // commentCard.html(data.htmlResponse);
+                        questionRowForm.replaceWith(data.htmlResponse);
+                        // console.log(data.htmlResponse);
+                    } else {
+                        alert("error");
+                    }
+                },
+                'error': function (data) {
+                    alert('error function');
+                }
+            });
+
+        });
+
+        
+        
+    </script>
+
+{% endblock %}

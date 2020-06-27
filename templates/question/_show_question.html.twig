@@ -1,0 +1,11 @@
+<div class="form-row question-row">
+    <div class="col-8">{{ question.question }}</div>
+    <div class="col-2">{{ question.type }}</div>
+    {% if question.type != 'SINGLE-LINE' %}
+        <div class="col-1"><button type="button" class="btn btn-sm btn-info">Add choice</button></div>
+    {% else %}
+        <div class="col-1"></div>
+    {% endif %}
+    <div class="col-1"><button type="button" class="close delete-question"><span aria-hidden="true">&times;</span></button></div>
+</div>
+<hr/>
