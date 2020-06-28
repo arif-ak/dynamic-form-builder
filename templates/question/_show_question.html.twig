@@ -1,11 +1,33 @@
-<div class="form-row question-row">
-    <div class="col-8">{{ question.question }}</div>
-    <div class="col-2">{{ question.type }}</div>
+<div class="question-container">            
+    <div class="form-row question-row">
+        <div class="col-7">{{ question.question }}</div>
+        <div class="col-2">{{ question.type }}</div>
+        {% if question.type != 'SINGLE-LINE' %}
+            <div class="col-2"><button data-question = {{ question.id }} type="button" class="btn btn-sm btn-info add-choice">Add choice</button></div>
+        {% else %}
+            <div class="col-2"></div>
+        {% endif %}
+        <div class="col-1"><button type="button" data-question = {{ question.id }} class="close delete-question"><span aria-hidden="true">&times;</span></button></div>
+    </div>
+
     {% if question.type != 'SINGLE-LINE' %}
-        <div class="col-1"><button type="button" class="btn btn-sm btn-info">Add choice</button></div>
-    {% else %}
-        <div class="col-1"></div>
+        <div class="form-row">
+            <div class="col">
+            <h6>Choices</h6>
+            </div>
+        </div>
+
+        <div class="choices">
+
+            <div class="form-row choice-row border border-dark p-1" data-question={{ question.id }}>
+                {% for choice in question.questionChoices %}
+                    {{ include('question_choice/_show_choice.html.twig', {'choice': choice}) }}
+                {% endfor %}     
+                
+
+            </div>
+
+        </div>
     {% endif %}
-    <div class="col-1"><button type="button" class="close delete-question"><span aria-hidden="true">&times;</span></button></div>
+    <hr/>
 </div>
-<hr/>

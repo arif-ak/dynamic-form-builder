@@ -1,29 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Form listing{% endblock %}
+{% block title %}DynamicForm index{% endblock %}
 
 {% block body %}
-    <h1>Form listing</h1>
+    <h1>DynamicForm index</h1>
 
     <table class="table">
         <thead>
-            <tr class="text-center">
+            <tr>
                 <th>Id</th>
                 <th>Title</th>
                 <th>Description</th>
-                <th>Actions</th>
+                <th>actions</th>
             </tr>
         </thead>
         <tbody>
         {% for dynamic_form in dynamic_forms %}
-            <tr class="text-center">
+            <tr>
                 <td>{{ dynamic_form.id }}</td>
                 <td>{{ dynamic_form.title }}</td>
                 <td>{{ dynamic_form.description }}</td>
                 <td>
-                    <a class="btn btn-sm btn-dark" href="{{ path('dynamic_form_show', {'id': dynamic_form.id}) }}">Show form</a>
-                    <a class="btn btn-sm btn-primary" href="{{ path('dynamic_form_show_responses', {'id': dynamic_form.id}) }}">Show responses</a>
-                    <a class="btn btn-sm btn-info" href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">Edit form</a>
+                    <a href="{{ path('dynamic_form_user_show', {'id': dynamic_form.id}) }}">View form</a>
                 </td>
             </tr>
         {% else %}
@@ -34,5 +32,4 @@
         </tbody>
     </table>
 
-    <a class="btn btn-success" href="{{ path('dynamic_form_new') }}">Create new</a>
 {% endblock %}

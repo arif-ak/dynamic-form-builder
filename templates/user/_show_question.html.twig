@@ -1,0 +1,40 @@
+<div class="question-container">            
+    <div class="form-row question-row">
+        <div class="col-8">{{ question.question }}</div>
+
+        {% if question.type == 'SINGLE-LINE' %}
+            <div class="col-4">
+                <input type="text" id="{{question.id}}" name="{{ question.id }}[]" required="required" 
+                class="question-row-question form-control" placeholder="Enter answer here....">
+            </div>
+        {% endif %}
+
+        {% if question.type == 'MULTIPLE-CHOICE' %}
+            <div class="col-4">
+                {% for choice in question.questionChoices %}
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="{{ question.id }}[]" id={{ choice.id }} value={{ choice.id }}>
+                    <label class="form-check-label" for="{{choice.choice}}">
+                        {{ choice.choice }}
+                    </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if question.type == 'MULTIPLE-SELECTION' %}
+            <div class="col-4">
+            {% for choice in question.questionChoices %}
+                <div class="form-check">
+                    <input class="form-check-input" name="{{ question.id }}[]" type="checkbox" value={{ choice.id }} id="{{choice.id}}">
+                    <label class="form-check-label" for="{{choice.id}}">
+                        {{ choice.choice }}
+                    </label>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <hr/>
+</div>

@@ -36,7 +36,7 @@ class Question
     private $type;
 
     /**
-     * @ORM\Column(type="string", length=1000)
+     * @ORM\Column(type="string", length=10000)
      */
     private $question;
 
@@ -50,9 +50,15 @@ class Question
      */
     private $responses;
 
+    /**
+     * @ORM\OneToMany(targetEntity=QuestionChoice::class, mappedBy="question")
+     */
+    private $questionChoices;
+
     public function __construct()
     {
         $this->responses = new ArrayCollection();
+        $this->questionChoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,7 +66,7 @@ class Question
         return $this->id;
     }
 
-    public function getForm(): ?Form
+    public function getForm(): ?DynamicForm
     {
         return $this->form;
     }
@@ -133,6 +139,37 @@ class Question
             // set the owning side to null (unless already changed)
             if ($response->getQuestion() === $this) {
                 $response->setQuestion(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|QuestionChoice[]
+     */
+    public function getQuestionChoices(): Collection
+    {
+        return $this->questionChoices;
+    }
+
+    public function addQuestionChoice(QuestionChoice $questionChoice): self
+    {
+        if (!$this->questionChoices->contains($questionChoice)) {
+            $this->questionChoices[] = $questionChoice;
+            $questionChoice->setQuestion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuestionChoice(QuestionChoice $questionChoice): self
+    {
+        if ($this->questionChoices->contains($questionChoice)) {
+            $this->questionChoices->removeElement($questionChoice);
+            // set the owning side to null (unless already changed)
+            if ($questionChoice->getQuestion() === $this) {
+                $questionChoice->setQuestion(null);
             }
         }
 

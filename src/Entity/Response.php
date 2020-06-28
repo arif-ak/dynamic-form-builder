@@ -66,12 +66,12 @@ class Response
         return $this;
     }
 
-    public function getForm(): ?Form
+    public function getForm(): ?DynamicForm
     {
         return $this->form;
     }
 
-    public function setForm(?Form $form): self
+    public function setForm(?DynamicForm $form): self
     {
         $this->form = $form;
 

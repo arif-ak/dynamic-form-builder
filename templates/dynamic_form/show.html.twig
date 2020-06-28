@@ -15,33 +15,31 @@
                 <th>Description</th>
                 <td>{{ dynamic_form.description }}</td>
             </tr>
-            <tr>
-                <th>UniqueId</th>
-                <td>{{ dynamic_form.uniqueId }}</td>
-            </tr>
+            
         </tbody>
     </table>
 
     <div class="form-row">
         <a class="btn btn-info ml-0" href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">Edit Form</a>
         <a class="btn btn-dark ml-1" href="{{ path('dynamic_form_index') }}">Back to form list</a>
+        <a class="btn btn-primary ml-1" href="{{ path('dynamic_form_show_responses', {'id': dynamic_form.id}) }}">Show responses</a>
     </div>
 
     <hr/>
 
     <h1>Questions</h1>
-
+    <p> Info : 'x' buttons directly delete entry from database in this pre-release version </p>
     <div class="form-row">
-        <div class="col-8">Question text</div>
-        <div class="col-2">Question type</div>
-        <div class="col-1"></div>
+        <div class="col-7"><h5>Question text</h5></div>
+        <div class="col-2"><h5>Question type</h5></div>
+        <div class="col-2"></div>
         <div class="col-1"></div>
         </div>
     <hr/>
 
     <div id="questions">
         {% for question in questions %}
-            {{ include('question/_show_question.html.twig', {'question': question}) }}
+                {{ include('question/_show_question.html.twig', {'question': question}) }}
         {% endfor %}
     </div>
 
@@ -55,23 +53,82 @@
 {% block javascripts %}
     {{ parent() }}
 
-    {% set choice %}
+    {% set newQuestion %}
         {{ render(path('dynamic_form_question',{'form' : dynamic_form.id }))}}
     {% endset %}
 
     <script>
         $(".add-question").click(function (e) {
-            $('#questions').append({{ choice }});
+            $('#questions').append({{ newQuestion }});
         });
 
         $('#questions').on( 'click', '.remove-question', function () {
             $(this).parent().parent().parent().remove();
         });
 
+        $('#questions').on( 'click', '.delete-question', function () {
+
+            var questionRow = $(this).parent().parent().parent();
+            console.log(questionRow);
+            var questionId = $(this).data('question');
+            var deleteUrl = '{{ path("question_delete",{"question" : "question_Id" }) }}'
+            deleteUrl = deleteUrl.replace("question_Id",questionId);
+
+            $.ajax({
+                'method': 'get',
+                'url': deleteUrl,
+                'success': function (data) {
+                    console.log(data);
+                    if (data.status == 'success') {
+                        console.log('ajax success');
+                        questionRow.remove();
+                    } else {
+                        alert("delete unsuccessful, please try again");
+                    }
+                },
+                'error': function (data) {
+                    alert('Cannot be deleted as question has a response saved in responses');
+                }
+            });
+
+            
+        });
+
+        $('#questions').on( 'click', '.delete-choice', function () {
+            
+
+            var choiceRow = $(this).parent().parent().parent().parent();
+
+            var choiceId = $(this).data('choice');
+            var deleteUrl = '{{ path("question_choice_delete",{"choice" : "choice_Id" }) }}'
+            deleteUrl = deleteUrl.replace("choice_Id",choiceId);
+
+            $.ajax({
+                'method': 'get',
+                'url': deleteUrl,
+                'success': function (data) {
+                    console.log(data);
+                    if (data.status == 'success') {
+                        console.log('ajax success');
+                        choiceRow.remove();
+                    } else {
+                        alert("delete unsuccessful, please try again");
+                    }
+                },
+                'error': function (data) {
+                    alert('Cannot be deleted as choice has a response saved in responses');
+                }
+            });
+            
+        });
+
+        
+
         $( '#questions' ).on( 'click', '.save-question', function () {
 
             var questionRow = $(this).closest('.question-row');
             var questionRowForm = $(this).closest('.question-row').parent();
+
             console.log(questionRow.find('.question-row-question').val());
             console.log(questionRow.find('.question-row-type').val());
 
@@ -87,8 +144,6 @@
                 },
                 'success': function (data) {
                     if (data.status == 'success') {
-                        
-                        // commentCard.html(data.htmlResponse);
                         questionRowForm.replaceWith(data.htmlResponse);
                         // console.log(data.htmlResponse);
                     } else {
@@ -102,7 +157,73 @@
 
         });
 
-        
+        $('#questions').on( 'click', '.add-choice', function () {
+
+            var choices = $(this).closest('.question-row').next().next();
+            var choiceRow = choices.find('.choice-row');
+            var questionId = $(this).data('question');
+            var addChoiceUrl = '{{ path("question_choice_new",{"question" : "question_Id" }) }}'
+            addChoiceUrl = addChoiceUrl.replace("question_Id",questionId);
+
+            console.log(questionId);
+            console.log(choiceRow);
+
+            $.ajax({
+                'method': 'get',
+                'url': addChoiceUrl,
+                'success': function (data) {
+                    console.log(data);
+                    if (data) {
+                        choiceRow.append(data);
+                        // console.log(data.htmlResponse);
+                    } else {
+                        alert("error");
+                    }
+                },
+                'error': function (data) {
+                    alert('error function');
+                }
+            });
+            
+        });
+
+        $('#questions').on( 'click', '.remove-choice', function () {
+            $(this).parent().parent().parent().parent().parent().remove();
+        });
+
+        $( '#questions' ).on( 'click', '.save-choice', function () {
+
+            var choiceRow = $(this).parent().parent().parent();
+            var choiceRowForm = choiceRow.parent().parent().parent();
+            var choiceText = choiceRow.find('.choice-row-choice').val();
+            var questionId = choiceRow.data('question');
+
+            console.log(questionId);
+
+            var saveUrl = '{{ path("question_choice_new", {"question": "question_id"}) }}';
+            saveUrl = saveUrl.replace("question_id", questionId );
+
+            $.ajax({
+                'method': 'post',
+                'url': saveUrl,
+                'data' : {
+                    'choice' : choiceText
+                },
+                'success': function (data) {
+                    if (data.status == 'success') {
+                        choiceRowForm.replaceWith(data.htmlResponse);
+                        // console.log(data.htmlResponse);
+                    } else {
+                        alert("error");
+                    }
+                },
+                'error': function (data) {
+                    alert('error function');
+                }
+            });
+
+
+        });
         
     </script>
 

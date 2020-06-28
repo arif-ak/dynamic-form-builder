@@ -18,11 +18,6 @@ class QuestionChoice
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Question::class)
-     */
-    private $question;
-
-    /**
      * @ORM\Column(type="string", length=500)
      */
     private $choice;
@@ -32,21 +27,15 @@ class QuestionChoice
      */
     private $isActive;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Question::class, inversedBy="questionChoices", cascade={"persist"})
+     * @ORM\JoinColumn(name="question_id",referencedColumnName="id", nullable=true, onDelete="CASCADE"))
+     */
+    private $question;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getQuestion(): ?Question
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(?Question $question): self
-    {
-        $this->question = $question;
-
-        return $this;
     }
 
     public function getChoice(): ?string
@@ -69,6 +58,18 @@ class QuestionChoice
     public function setIsActive(?bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getQuestion(): ?Question
+    {
+        return $this->question;
+    }
+
+    public function setQuestion(?Question $question): self
+    {
+        $this->question = $question;
 
         return $this;
     }

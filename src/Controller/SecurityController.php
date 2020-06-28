@@ -27,11 +27,13 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/logged-in", name="app_login_success")
+     * @Route("/landing-page", name="app_login_success")
      */
     public function loginSuccess(AuthenticationUtils $authenticationUtils): Response
     {
-        return new Response("Logged in");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        
+        return $this->render('security/landingPage.html.twig', ['user' => $user]);
     }
 
     /**

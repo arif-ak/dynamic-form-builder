@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Form response{% endblock %}
+
+{% block body %}
+
+    <div class="text-center">
+        <h2>Response received for '{{ dynamic_form.title }}'</h2>
+        <h5>{{ dynamic_form.description }}</h5>
+    </div>
+    <p class="text-center">Note : If you are seeing this page, you have already sent your response. Wait for Kim's hairdressers to get back to you</p>
+    <hr/>
+
+    <div class="form-row">
+        <div class="col-8 text-center"><h5>Question</h5></div>
+        <div class="col-4 text-center"><h5>Response</h5></div>
+    </div>
+    <hr/>
+
+    {% for response in responses %}
+        <div class="form-row">
+            <div class="col-8 text-center"><h5>{{ response.question.question }}</h5></div>
+            <div class="col-4 text-center"><h5>{{ response.answer }}</h5></div>
+        </div>
+        <hr/>
+    {% endfor %}
+
+    <a class="btn btn-dark" href="{{ path('dynamic_form_index_user') }}">Back to form details</a>
+{% endblock %}

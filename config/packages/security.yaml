@@ -16,7 +16,7 @@ security:
             anonymous: true
             form_login:
                 login_path: app_login
-                default_target_path: app_login_success
+                default_target_path: dynamic_form_index
             guard:
                 authenticators:
                     - App\Security\LoginFormAuthenticator
