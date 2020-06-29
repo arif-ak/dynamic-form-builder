@@ -8,18 +8,20 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Title</th>
+                <th>Service name</th>
                 <th>Description</th>
-                <th>actions</th>
+                <th>Regular price</th>
+                <th>Sales price</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for dynamic_form in dynamic_forms %}
             <tr>
-                <td>{{ dynamic_form.id }}</td>
                 <td>{{ dynamic_form.title }}</td>
                 <td>{{ dynamic_form.description }}</td>
+                <td>{{ dynamic_form.regularPrice }}</td>
+                <td><h5>{{ dynamic_form.salesPrice }}</h5></td>
                 <td>
                     <a href="{{ path('dynamic_form_user_show', {'id': dynamic_form.id}) }}">View form</a>
                 </td>

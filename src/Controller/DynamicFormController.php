@@ -27,6 +27,25 @@ class DynamicFormController extends AbstractController
     }
 
     /**
+     * @Route("/toggle/{id}", name="dynamic_form_toggle", methods={"GET"})
+     */
+    public function toggle(Request $request, DynamicForm $dynamicForm): Response
+    {
+
+        $dynamicForm->setIsActive(!$dynamicForm->getIsActive());
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($dynamicForm);
+        $entityManager->flush();
+
+        if($dynamicForm->getIsActive())
+            $this->addFlash('message', 'Form is live to customers');
+        else    
+        $this->addFlash('message', 'Form is hidden from customers');
+
+        return $this->redirectToRoute('dynamic_form_index');
+    }
+
+    /**
      * @Route("/user/", name="dynamic_form_index_user", methods={"GET"})
      */
     public function indexUser(Request $request, DynamicFormRepository $dynamicFormRepository): Response

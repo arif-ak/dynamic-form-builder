@@ -13,18 +13,32 @@
             </div>
         {% endif %}
         
+        
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"
                 integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                 crossorigin="anonymous"></script>
-                
+        <script>
+            $('body').on( 'click', '.flash-message-close', function () {
+                $(this).parent().remove();
+            })
+        </script>        
         <div class = 'container'>
             {% if app.user %}
                 <div class="float-right p-1">
                     <a class="btn btn-sm btn-danger" href="{{ path('app_logout') }}">Logout</a>
                 </div>
             {% endif %}
+            {% for message in app.flashes('message') %}
+                <div class="alert alert-info flash-message alert-dismissible" role="alert">
+                <button type="button" class="flash-message-close close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
+
 
         </div>
     </body>

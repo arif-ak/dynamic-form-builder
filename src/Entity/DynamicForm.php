@@ -32,6 +32,21 @@ class DynamicForm
      */
     private $uniqueId;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $regularPrice;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $salesPrice;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +84,42 @@ class DynamicForm
     public function setUniqueId(?string $uniqueId): self
     {
         $this->uniqueId = $uniqueId;
+
+        return $this;
+    }
+
+    public function getRegularPrice(): ?string
+    {
+        return $this->regularPrice;
+    }
+
+    public function setRegularPrice(?string $regularPrice): self
+    {
+        $this->regularPrice = $regularPrice;
+
+        return $this;
+    }
+
+    public function getSalesPrice(): ?string
+    {
+        return $this->salesPrice;
+    }
+
+    public function setSalesPrice(string $salesPrice): self
+    {
+        $this->salesPrice = $salesPrice;
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

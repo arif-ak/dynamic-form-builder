@@ -4,10 +4,29 @@
 
 {% block body %}
 
-    <div class="text-center">
-        <h2>{{ dynamic_form.title }}</h2>
-        <h5>{{ dynamic_form.description }}</h5>
-    </div>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Title</th>
+                <td>{{ dynamic_form.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ dynamic_form.description }}</td>
+            </tr>
+            {% if dynamic_form.regularPrice %}
+                <tr>
+                    <th>Regular price</th>
+                    <td>{{ dynamic_form.regularPrice }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>Sales price</th>
+                <td><h5>{{ dynamic_form.salesPrice }}</h5></td>
+            </tr>
+            
+        </tbody>
+    </table>
 
     <div class="form-row">
         <div class="col-8 text-center"><h5>Question</h5></div>

@@ -8,22 +8,30 @@
     <table class="table">
         <thead>
             <tr class="text-center">
-                <th>Id</th>
-                <th>Title</th>
+                <th>Service name</th>
                 <th>Description</th>
-                <th>Actions</th>
+                <th>Regular price</th>
+                <th>Sales price</th>
+                <th>Form visibility</th>
+                <th>Form Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for dynamic_form in dynamic_forms %}
             <tr class="text-center">
-                <td>{{ dynamic_form.id }}</td>
                 <td>{{ dynamic_form.title }}</td>
                 <td>{{ dynamic_form.description }}</td>
+                <td>{{ dynamic_form.regularPrice }}</td>
+                <td><h5>{{ dynamic_form.salesPrice }}</h5></td>
+                {% if dynamic_form.isActive %}
+                    <td><a class="btn btn-sm btn-success" href="{{ path('dynamic_form_toggle', {'id': dynamic_form.id}) }}">Public - Click to Hide</a></td>
+                {% else %}
+                    <td><a class="btn btn-sm btn-danger" href="{{ path('dynamic_form_toggle', {'id': dynamic_form.id}) }}">Hidden - Click to unhide</a></td>
+                {% endif %}
                 <td>
-                    <a class="btn btn-sm btn-dark" href="{{ path('dynamic_form_show', {'id': dynamic_form.id}) }}">Show form</a>
-                    <a class="btn btn-sm btn-primary" href="{{ path('dynamic_form_show_responses', {'id': dynamic_form.id}) }}">Show responses</a>
-                    <a class="btn btn-sm btn-info" href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">Edit form</a>
+                    <a class="btn btn-sm btn-dark" href="{{ path('dynamic_form_show', {'id': dynamic_form.id}) }}">Show</a>
+                    <a class="btn btn-sm btn-info" href="{{ path('dynamic_form_edit', {'id': dynamic_form.id}) }}">Edit</a>
+                    <a class="btn btn-sm btn-primary" href="{{ path('dynamic_form_show_responses', {'id': dynamic_form.id}) }}">Show form responses</a>
                 </td>
             </tr>
         {% else %}
