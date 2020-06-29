@@ -8,9 +8,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Traits\DateTimeCrudFields;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(
+ *  fields={"email"},
+ *  message="This email is already registered"
+ * )
  */
 class User implements UserInterface
 {
@@ -32,6 +38,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      */
     private $firstName;
 
@@ -42,11 +49,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Email
+     * @Assert\NotBlank
      */
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $password;
 
@@ -67,13 +76,15 @@ class User implements UserInterface
 
     private $rawPassword;
 
-    public function generatePassword()
+    public function generatePassword($newPassword)
     {
-        $password = substr(md5(uniqid(mt_rand(), true)), 0, self::PASSWORD_LENGTH);
-        $password = 'password'; //temporary password for development
-        $this->rawPassword = $password;
+        //$password = substr(md5(uniqid(mt_rand(), true)), 0, self::PASSWORD_LENGTH);
+        //$this->rawPassword = $password;
 
-        return $password;
+        //function modified to stop random password generation for demo app
+        $this->rawPassword = $newPassword;
+
+        return $newPassword;
     }
 
     public function encodePassword(PasswordEncoderInterface $encoder)
@@ -194,5 +205,15 @@ class User implements UserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function setRawPassword($rawPassword)
+    {
+        $this->rawPassword = $rawPassword;
+    }
+
+    public function getRawPassword()
+    {
+        return $this->rawPassword;
     }
 }

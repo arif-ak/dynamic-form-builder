@@ -22,6 +22,10 @@ services:
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+    
+    mail_manager:
+        class: App\Service\MailManager
+        arguments: ["@doctrine.orm.entity_manager" ,"@mailer","@templating"]
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

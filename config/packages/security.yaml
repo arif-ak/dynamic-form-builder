@@ -25,7 +25,7 @@ security:
                 target: app_login
     encoders:
         App\Entity\User:
-            algorithm: plaintext
+            algorithm: sha512
                 # where to redirect after logout
                 # target: app_any_route
 
@@ -39,5 +39,6 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/createuserjohndoe, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: ROLE_USER }

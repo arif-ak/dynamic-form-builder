@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1 class="h3 mb-3 font-weight-normal">Register new user</h1>
+
+    <div class="card">
+        <div class="card-body">
+            {{ form_start(form) }}
+
+            <div class="form-row">
+                <div class="col-md-6">
+                    {{ form_row(form.firstName) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_row(form.lastName) }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-md-6">
+                    {{ form_row(form.email) }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form_row(form.password) }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col">
+                    <button class="btn btn-success" type="submit" value="Save">Register</button>
+                    <a class="btn btn-danger" href="{{ path('app_login_success') }}">Cancel</a>
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+{% endblock %}
