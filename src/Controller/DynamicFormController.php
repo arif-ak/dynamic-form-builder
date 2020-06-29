@@ -147,7 +147,7 @@ class DynamicFormController extends AbstractController
 
                     foreach($questionResponse as $postResponse)
                     {
-                        if($question->getType() == 'SINGLE-LINE')
+                        if($question->getType() == 'SINGLE-LINE' || $question->getType() == 'DATETIME-PICKER' )
                         {
                             $answerString = $postResponse;
                         } else {
@@ -175,15 +175,28 @@ class DynamicFormController extends AbstractController
     /**
      * @Route("/show/new-question/{form}", name="dynamic_form_question", methods={"GET","POST"})
      */
-    public function addQuestion(Request $request,DynamicForm $form): Response
+    public function addQuestion(Request $request,DynamicForm $form, QuestionRepository $questionRepository): Response
     {
         $question = new Question();
         $questionForm = $this->createForm(QuestionType::class, $question);
         $questionForm->handleRequest($request);
 
         if ($request->isMethod('POST')) {
+            
+            if($request->request->get('type') == 'DATETIME-PICKER'){
+                $result = $questionRepository->findBy(
+                    ['type' => 'DATETIME-PICKER', 'form' => $form]
+                );
+                if($result){
+                    $response['status'] = 'exists';
+                    $response['message'] = 'Only one datetime picker can be used for a form';
 
+                    return new JsonResponse($response);
+                }
+
+            }
             $question->setQuestion($request->request->get('question'));
+
             $question->setType($request->request->get('type'));
             $question->setForm($form);
 

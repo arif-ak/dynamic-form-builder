@@ -15,7 +15,8 @@ class Question
     const TYPE_ARRAY = [
         'Single Line' =>'SINGLE-LINE',
         'Multiple choice' => 'MULTIPLE-CHOICE',
-        'Multiple selection' => 'MULTIPLE-SELECTION'
+        'Multiple selection' => 'MULTIPLE-SELECTION',
+        'DateTime picker' => 'DATETIME-PICKER'
     ];
     
     /**

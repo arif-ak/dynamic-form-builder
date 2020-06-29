@@ -2,7 +2,7 @@
     <div class="form-row question-row">
         <div class="col-7">{{ question.question }}</div>
         <div class="col-2">{{ question.type }}</div>
-        {% if question.type != 'SINGLE-LINE' %}
+        {% if (question.type == 'MULTIPLE-CHOICE' or question.type == 'MULTIPLE-SELECTION' ) %}
             <div class="col-2"><button data-question = {{ question.id }} type="button" class="btn btn-sm btn-info add-choice">Add choice</button></div>
         {% else %}
             <div class="col-2"></div>
@@ -10,7 +10,7 @@
         <div class="col-1"><button type="button" data-question = {{ question.id }} class="close delete-question"><span aria-hidden="true">&times;</span></button></div>
     </div>
 
-    {% if question.type != 'SINGLE-LINE' %}
+    {% if (question.type == 'MULTIPLE-CHOICE' or question.type == 'MULTIPLE-SELECTION' ) %}
         <div class="form-row">
             <div class="col">
             <h6>Choices</h6>

@@ -13,7 +13,7 @@
             <div class="col-4">
                 {% for choice in question.questionChoices %}
                     <div class="form-check">
-                    <input class="form-check-input" type="radio" name="{{ question.id }}[]" id={{ choice.id }} value={{ choice.id }}>
+                    <input class="form-check-input" type="radio" name="{{ question.id }}[]" id={{ choice.id }} value={{ choice.id }} checked>
                     <label class="form-check-label" for="{{choice.choice}}">
                         {{ choice.choice }}
                     </label>
@@ -32,6 +32,17 @@
                     </label>
                 </div>
             {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if question.type == 'DATETIME-PICKER' %}
+            <div class="col-4">
+                <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                    <input type="text" name="{{ question.id }}[]" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+                    <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>

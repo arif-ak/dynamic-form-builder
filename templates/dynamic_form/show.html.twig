@@ -130,8 +130,6 @@
             
         });
 
-        
-
         $( '#questions' ).on( 'click', '.save-question', function () {
 
             var questionRow = $(this).closest('.question-row');
@@ -154,8 +152,11 @@
                     if (data.status == 'success') {
                         questionRowForm.replaceWith(data.htmlResponse);
                         // console.log(data.htmlResponse);
+                    } else if(data.status == 'exists') {
+                        alert(data.message);
+                        questionRowForm.replaceWith();
                     } else {
-                        alert("error");
+                        alert("error, please try again");
                     }
                 },
                 'error': function (data) {
