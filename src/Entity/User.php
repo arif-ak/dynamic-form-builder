@@ -70,7 +70,7 @@ class User implements UserInterface
     private $passwordExpired;
 
     /**
-     * @var array
+     * @ORM\Column(type="array", nullable=true)
      */
     private $roles = [];
 
@@ -196,8 +196,8 @@ class User implements UserInterface
 
     public function getRoles(): ?array
     {
-        // $roles = array_unique(array_merge($this->roles, [self::ROLE_DEFAULT]));
-        return ['ROLE_USER'];
+        $roles = array_unique(array_merge($this->roles, ['ROLE_USER']));
+        return $roles;
     }
 
     public function setRoles(array $roles): self
@@ -216,4 +216,5 @@ class User implements UserInterface
     {
         return $this->rawPassword;
     }
+
 }

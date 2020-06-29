@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.0/css/bootstrap.min.css">
+        
+    </head>
+    <body>
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
+        <script>
+            $('body').on( 'click', '.flash-message-close', function () {
+                $(this).parent().remove();
+            })
+        </script>   
+
+        <div class = 'container'>
+            
+            {% for message in app.flashes('message') %}
+                <div class="alert alert-info flash-message alert-dismissible" role="alert">
+                <button type="button" class="flash-message-close close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+
+
+        </div>
+    </body>
+</html>

@@ -4,4 +4,4 @@
 
 homepage:
    path: /
-   controller: App\Controller\SecurityController::loginSuccess
+   controller: App\Controller\SecurityController::loginRedirect

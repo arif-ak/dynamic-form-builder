@@ -13,6 +13,7 @@ use App\Form\UserType;
 use App\Service\MailManager;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Symfony\Component\Debug\Exception\FlattenException;
 
 class SecurityController extends AbstractController
 {
@@ -34,16 +35,6 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/landing-page", name="app_login_success")
-     */
-    public function loginSuccess(AuthenticationUtils $authenticationUtils): Response
-    {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        
-        return $this->render('security/landingPage.html.twig', ['user' => $user]);
-    }
-
-    /**
      * @Route("/logout", name="app_logout")
      */
     public function logout()
@@ -51,10 +42,10 @@ class SecurityController extends AbstractController
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-      /**
-     * @Route("/createuserjohndoe", name="app_test")
+    /**
+     * @Route("/createuserjohndoe", name="app_create_user")
      */
-    public function test(UserRepository $userRepository)
+    public function createUser(UserRepository $userRepository)
     {   
         $entityManager = $this->getDoctrine()->getManager();
             
@@ -63,14 +54,15 @@ class SecurityController extends AbstractController
         if($user){
             $entityManager->remove($user);
             $entityManager->flush();
-        } else {
+        } 
+        // else {
 
         $user = new User();
         $user->setFirstName('John');
         $user->setLastName('Doe');
         $user->setEmail('johndoe@company.com');
-        // $user->setPassword('password');
-        }
+        $user->setRoles(['ROLE_USER']);
+        // }
         $password = $user->generatePassword('password'); //function modified to stop random password generation for demo app
         $defaultEncoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
         $encoders = [
@@ -86,6 +78,44 @@ class SecurityController extends AbstractController
         $entityManager->flush();
 
         return new Response('John Doe created');
+    }
+
+    /**
+     * @Route("/createadmin", name="app_create_admin")
+     */
+    public function createAdmin(UserRepository $userRepository)
+    {   
+        $entityManager = $this->getDoctrine()->getManager();
+            
+        $user = $userRepository->findOneBy(['email' => 'admin@company.com']);
+
+        if($user){
+            $entityManager->remove($user);
+            $entityManager->flush();
+        } else {
+
+            $user = new User();
+            $user->setFirstName('Admin');
+            $user->setLastName('User');
+            $user->setEmail('admin@company.com');
+            $user->setRoles(['ROLE_USER','ROLE_ADMIN']);
+        }
+
+        $password = $user->generatePassword('password'); //function modified to stop random password generation for demo app
+        $defaultEncoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
+        $encoders = [
+            User::class => $defaultEncoder,
+        ];
+        $encoderFactory = new EncoderFactory($encoders);
+        $encoder = $encoderFactory->getEncoder($user);
+
+        $user->encodePassword($encoder);
+        $user->setRawPassword($password);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new Response('Admin user created');
     }
 
     /**
@@ -123,5 +153,37 @@ class SecurityController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/error-message", name="app_error_message")
+     */
+    public function errorAction(Request $request, FlattenException $exception): Response
+    {
+        $errorCode = $exception->getStatusCode();
+
+        if($errorCode == 403)
+            return $this->render('bundles/TwigBundle/Exception/error403.html.twig',[
+            ]);
+
+        if($errorCode == 404)
+            return $this->render('bundles/TwigBundle/Exception/error404.html.twig',[
+            ]);
+
+        return $this->render('bundles/TwigBundle/Exception/error.html.twig',[
+        ]);
+    }
+
+    /**
+     * @Route("/login-redirect", name="app_login_redirect")
+     */
+    public function loginRedirect(Request $request): Response
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        if(in_array('ROLE_ADMIN',$user->getRoles()))
+            return $this->redirectToRoute('dynamic_form_index');
+
+        return $this->redirectToRoute('dynamic_form_index_user');
     }
 }

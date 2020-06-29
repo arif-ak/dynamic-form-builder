@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DynamicFormController extends AbstractController
 {
     /**
-     * @Route("/", name="dynamic_form_index", methods={"GET"})
+     * @Route("/admin/", name="dynamic_form_index", methods={"GET"})
      */
     public function index(Request $request, DynamicFormRepository $dynamicFormRepository): Response
     {
@@ -27,7 +27,7 @@ class DynamicFormController extends AbstractController
     }
 
     /**
-     * @Route("/toggle/{id}", name="dynamic_form_toggle", methods={"GET"})
+     * @Route("/admin/toggle/{id}", name="dynamic_form_toggle", methods={"GET"})
      */
     public function toggle(Request $request, DynamicForm $dynamicForm): Response
     {
@@ -46,17 +46,7 @@ class DynamicFormController extends AbstractController
     }
 
     /**
-     * @Route("/user/", name="dynamic_form_index_user", methods={"GET"})
-     */
-    public function indexUser(Request $request, DynamicFormRepository $dynamicFormRepository): Response
-    {
-        return $this->render('user/index.html.twig', [
-            'dynamic_forms' => $dynamicFormRepository->findAll(),
-        ]);
-    }
-
-    /**
-     * @Route("/new", name="dynamic_form_new", methods={"GET","POST"})
+     * @Route("/admin/new", name="dynamic_form_new", methods={"GET","POST"})
      */
     public function new(Request $request): Response
     {
@@ -80,7 +70,7 @@ class DynamicFormController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="dynamic_form_show", methods={"GET"})
+     * @Route("/admin/{id}", name="dynamic_form_show", methods={"GET"})
      */
     public function show(DynamicForm $dynamicForm, QuestionRepository $questionRepository): Response
     {
@@ -93,7 +83,7 @@ class DynamicFormController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/responses", name="dynamic_form_show_responses", methods={"GET"})
+     * @Route("/admin/{id}/responses", name="dynamic_form_show_responses", methods={"GET"})
      */
     public function showResponses(DynamicForm $dynamicForm, ResponseRepository $responseRepository): Response
     {
@@ -104,6 +94,101 @@ class DynamicFormController extends AbstractController
         return $this->render('dynamic_form/show_responses.html.twig', [
             'responses' => $responses,
             'dynamic_form' => $dynamicForm,
+        ]);
+    }
+
+    
+
+    /**
+     * @Route("/admin/show/new-question/{form}", name="dynamic_form_question", methods={"GET","POST"})
+     */
+    public function addQuestion(Request $request,DynamicForm $form, QuestionRepository $questionRepository): Response
+    {
+        $question = new Question();
+        $questionForm = $this->createForm(QuestionType::class, $question);
+        $questionForm->handleRequest($request);
+
+        if ($request->isMethod('POST')) {
+            
+            if($request->request->get('type') == 'DATETIME-PICKER'){
+                $result = $questionRepository->findBy(
+                    ['type' => 'DATETIME-PICKER', 'form' => $form]
+                );
+                if($result){
+                    $response['status'] = 'exists';
+                    $response['message'] = 'Only one datetime picker can be used for a form';
+
+                    return new JsonResponse($response);
+                }
+
+            }
+            $question->setQuestion($request->request->get('question'));
+
+            $question->setType($request->request->get('type'));
+            $question->setForm($form);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($question);
+            $entityManager->flush();
+
+            $responseHtml = $this->renderView('question/_show_question.html.twig', [
+                'question' => $question,
+            ]);
+
+            $response['status'] = 'success';
+            $response['message'] = 'Question has been added';
+            $response['htmlResponse'] = $responseHtml;
+
+            return new JsonResponse($response);
+        }
+
+
+        return $this->render('question/_new_question.html.twig', [
+            'form' => $questionForm->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/admin/{id}/edit", name="dynamic_form_edit", methods={"GET","POST"})
+     */
+    public function edit(Request $request, DynamicForm $dynamicForm): Response
+    {
+        $form = $this->createForm(DynamicFormType::class, $dynamicForm);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirectToRoute('dynamic_form_index');
+        }
+
+        return $this->render('dynamic_form/edit.html.twig', [
+            'dynamic_form' => $dynamicForm,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/{id}", name="dynamic_form_delete", methods={"DELETE"})
+     */
+    // public function delete(Request $request, DynamicForm $dynamicForm): Response
+    // {
+    //     if ($this->isCsrfTokenValid('delete'.$dynamicForm->getId(), $request->request->get('_token'))) {
+    //         $entityManager = $this->getDoctrine()->getManager();
+    //         $entityManager->remove($dynamicForm);
+    //         $entityManager->flush();
+    //     }
+
+    //     return $this->redirectToRoute('dynamic_form_index');
+    // }
+
+    /**
+     * @Route("/user/", name="dynamic_form_index_user", methods={"GET"})
+     */
+    public function indexUser(Request $request, DynamicFormRepository $dynamicFormRepository): Response
+    {
+        return $this->render('user/index.html.twig', [
+            'dynamic_forms' => $dynamicFormRepository->findBy(['isActive' => 1]),
         ]);
     }
 
@@ -171,88 +256,5 @@ class DynamicFormController extends AbstractController
             'dynamic_form' => $dynamicForm,
         ]);
     }
-
-    /**
-     * @Route("/show/new-question/{form}", name="dynamic_form_question", methods={"GET","POST"})
-     */
-    public function addQuestion(Request $request,DynamicForm $form, QuestionRepository $questionRepository): Response
-    {
-        $question = new Question();
-        $questionForm = $this->createForm(QuestionType::class, $question);
-        $questionForm->handleRequest($request);
-
-        if ($request->isMethod('POST')) {
-            
-            if($request->request->get('type') == 'DATETIME-PICKER'){
-                $result = $questionRepository->findBy(
-                    ['type' => 'DATETIME-PICKER', 'form' => $form]
-                );
-                if($result){
-                    $response['status'] = 'exists';
-                    $response['message'] = 'Only one datetime picker can be used for a form';
-
-                    return new JsonResponse($response);
-                }
-
-            }
-            $question->setQuestion($request->request->get('question'));
-
-            $question->setType($request->request->get('type'));
-            $question->setForm($form);
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($question);
-            $entityManager->flush();
-
-            $responseHtml = $this->renderView('question/_show_question.html.twig', [
-                'question' => $question,
-            ]);
-
-            $response['status'] = 'success';
-            $response['message'] = 'Question has been added';
-            $response['htmlResponse'] = $responseHtml;
-
-            return new JsonResponse($response);
-        }
-
-
-        return $this->render('question/_new_question.html.twig', [
-            'form' => $questionForm->createView()
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="dynamic_form_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, DynamicForm $dynamicForm): Response
-    {
-        $form = $this->createForm(DynamicFormType::class, $dynamicForm);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('dynamic_form_index');
-        }
-
-        return $this->render('dynamic_form/edit.html.twig', [
-            'dynamic_form' => $dynamicForm,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="dynamic_form_delete", methods={"DELETE"})
-     */
-    // public function delete(Request $request, DynamicForm $dynamicForm): Response
-    // {
-    //     if ($this->isCsrfTokenValid('delete'.$dynamicForm->getId(), $request->request->get('_token'))) {
-    //         $entityManager = $this->getDoctrine()->getManager();
-    //         $entityManager->remove($dynamicForm);
-    //         $entityManager->flush();
-    //     }
-
-    //     return $this->redirectToRoute('dynamic_form_index');
-    // }
 
 }
