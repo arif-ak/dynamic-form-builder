@@ -136,27 +136,31 @@ class DynamicFormController extends AbstractController
             {   
                 $questionResponse = $request->get($question->getId());
 
-                $response = new QuestionResponse();
-                $response->setQuestion($question);
-                $response->setUser($user);
-                $response->setForm($dynamicForm);
-
-                $answerString = '';
-
-                foreach($questionResponse as $postResponse)
+                if($questionResponse)
                 {
-                    if($question->getType() == 'SINGLE-LINE')
-                    {
-                        $answerString = $postResponse;
-                    } else {
-                        $choice = $questionChoiceRepository->find($postResponse);
-                        $answerString = $answerString ? $answerString.' ,'.$choice->getChoice() : $answerString.$choice->getChoice();
-                    }    
-                }
+                    $response = new QuestionResponse();
+                    $response->setQuestion($question);
+                    $response->setUser($user);
+                    $response->setForm($dynamicForm);
 
-                $response->setAnswer($answerString);
-                $entityManager->persist($response);
-                $entityManager->flush();
+                    $answerString = '';
+
+                    foreach($questionResponse as $postResponse)
+                    {
+                        if($question->getType() == 'SINGLE-LINE')
+                        {
+                            $answerString = $postResponse;
+                        } else {
+                            $choice = $questionChoiceRepository->find($postResponse);
+                            $answerString = $answerString ? $answerString.' ,'.$choice->getChoice() : $answerString.$choice->getChoice();
+                        }    
+                    }
+
+                    $response->setAnswer($answerString);
+                    $entityManager->persist($response);
+                    $entityManager->flush();
+                }
+                
             }
             return $this->redirectToRoute('dynamic_form_index_user');
 
