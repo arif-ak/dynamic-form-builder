@@ -43,4 +43,23 @@ class SecurityController extends AbstractController
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
+
+      /**
+     * @Route("/createuserjohndoe", name="app_test")
+     */
+    public function test()
+    {   
+        $entityManager = $this->getDoctrine()->getManager();
+            
+        $user = new User();
+        $user->setFirstName('John');
+        $user->setLastName('Doe');
+        $user->setEmail('johndoe@company.com');
+        $user->setPassword('password');
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new Response('John Doe created');
+    }
 }

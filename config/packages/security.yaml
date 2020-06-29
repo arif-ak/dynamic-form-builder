@@ -16,7 +16,7 @@ security:
             anonymous: true
             form_login:
                 login_path: app_login
-                default_target_path: dynamic_form_index
+                default_target_path: app_login_success
             guard:
                 authenticators:
                     - App\Security\LoginFormAuthenticator
@@ -39,4 +39,5 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/createuserjohndoe, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: ROLE_USER }
