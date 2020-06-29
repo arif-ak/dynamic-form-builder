@@ -40,9 +40,20 @@
         <form method="post">
             {% for question in questions %}
                     {{ include('user/_show_question.html.twig', {'question': question}) }}
+            {% else %}
+                <div class="text-center">
+                    <h5>No questions posted for this service yet</h5>
+                </div>
             {% endfor %}
-
-            <button id="saveResponse" class="btn btn-primary mb-2">Submit button</button>
+            
+            {% if questions %}
+                <div class="form-row">
+                    <button class="btn btn-primary mb-2">Submit button</button>
+                </div>
+            {% endif %}
+            <div class="form-row">
+                <a href={{ path('dynamic_form_index_user') }} class="btn btn-dark"> Back to form listing</a>
+            </div>
             
         </form>
     </div>
