@@ -33,7 +33,7 @@ class Response
     private $form;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="responses")
      */
     private $user;
 
@@ -88,5 +88,4 @@ class Response
         $this->user = $user;
 
         return $this;
-    }
-}
+    }}

@@ -10,19 +10,32 @@
     </div>
     <hr/>
 
-    <div class="form-row">
+    {# <div class="form-row">
         <div class="col-7 text-center"><h5>Question</h5></div>
         <div class="col-3 text-center"><h6>Response</h6></div>
         <div class="col-2 text-center"><h6>User</h6></div>
-    </div>
-    <hr/>
+    </div> #}
 
     {% for response in responses %}
-        <div class="form-row">
+       
+        <div>
+            <h4>{{ response.user.firstName}} {{ response.user.lastName }}</h4>
+        </div>
+
+        {# <div class="form-row">
             <div class="col-7 text-center"><h5>{{ response.question.question }}</h5></div>
             <div class="col-3 text-center"><h5>{{ response.answer }}</h5></div>
             <div class="col-2 text-center"><h5>{{ response.user.firstName}} {{ response.user.lastName }}</h5></div>
-        </div>
+        </div> #}
+        
+        {% for res in response.user.responses %}
+            {% if res.form.id == dynamic_form.id %}
+                <div class="form-row">
+                    <div class="col-3"><h6> {{ res.question.question }} </h6></div>
+                    <div class="col-3"> {{ res.answer }} </div>
+                </div>
+            {% endif %}
+        {% endfor %}
         <hr/>
     {% endfor %}
 

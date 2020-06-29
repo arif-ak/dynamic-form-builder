@@ -87,9 +87,7 @@ class DynamicFormController extends AbstractController
      */
     public function showResponses(DynamicForm $dynamicForm, ResponseRepository $responseRepository): Response
     {
-        $responses = $responseRepository->findBy(
-            ['form' => $dynamicForm]
-        );
+        $responses = $responseRepository->findResponses($dynamicForm);
         
         return $this->render('dynamic_form/show_responses.html.twig', [
             'responses' => $responses,

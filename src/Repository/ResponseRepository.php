@@ -47,4 +47,15 @@ class ResponseRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findResponses($form)
+    {
+        $qb = $this->createQueryBuilder('r');
+        $qb->select('r')
+        ->where('r.form = :form')
+        ->setParameter('form',$form)
+        ->groupBy('r.user');
+
+        return $qb->getQuery()->getResult();     
+    }
 }
