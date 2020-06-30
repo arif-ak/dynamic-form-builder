@@ -1,4 +1,4 @@
-Image library
+Dynamic Form Builder
 ======
 * A dynamic form builder web app, developed using Symfony 4.4
 
