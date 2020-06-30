@@ -10,19 +10,46 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\{Response,JsonResponse};
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Service\CustomFileManager;
 
 /**
  * @Route("/form")
  */
 class DynamicFormController extends AbstractController
 {
+    protected $entityManager;
+    protected $customFileManager;
+    protected $dynamicFormRepository;
+    protected $questionRepository;
+    protected $questionChoiceRepository;
+    protected $responseRepository;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        CustomFileManager $customFileManager,
+        DynamicFormRepository $dynamicFormRepository,
+        QuestionRepository $questionRepository,
+        QuestionChoiceRepository $questionChoiceRepository,
+        ResponseRepository $responseRepository
+    )
+    {
+        $this->entityManager = $entityManager;
+        $this->customFileManager = $customFileManager;
+        $this->dynamicFormRepository = $dynamicFormRepository;
+        $this->questionRepository = $questionRepository;
+        $this->questionChoiceRepository = $questionChoiceRepository;
+        $this->responseRepository = $responseRepository;
+    }
+
+
     /**
      * @Route("/admin/", name="dynamic_form_index", methods={"GET"})
      */
     public function index(Request $request, DynamicFormRepository $dynamicFormRepository): Response
     {
         return $this->render('dynamic_form/index.html.twig', [
-            'dynamic_forms' => $dynamicFormRepository->findAll(),
+            'dynamic_forms' => $this->dynamicFormRepository->findAll(),
         ]);
     }
 
@@ -33,14 +60,13 @@ class DynamicFormController extends AbstractController
     {
 
         $dynamicForm->setIsActive(!$dynamicForm->getIsActive());
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($dynamicForm);
-        $entityManager->flush();
+        $this->entityManager->persist($dynamicForm);
+        $this->entityManager->flush();
 
         if($dynamicForm->getIsActive())
             $this->addFlash('message', 'Form is live to customers');
         else    
-        $this->addFlash('message', 'Form is hidden from customers');
+            $this->addFlash('message', 'Form is hidden from customers');
 
         return $this->redirectToRoute('dynamic_form_index');
     }
@@ -55,10 +81,16 @@ class DynamicFormController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $files = $request->files->get('dynamic_form')['file'];
+            
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($dynamicForm);
             $entityManager->flush();
 
+            $response = $this->customFileManager->saveImages($files,$dynamicForm); //image saving service
+
+            $this->addFlash('message', 'Form creation successful');
             // return $this->redirectToRoute('dynamic_form_index');
             return $this->redirectToRoute('dynamic_form_show',['id' => $dynamicForm->getId()]);
         }
@@ -70,11 +102,38 @@ class DynamicFormController extends AbstractController
     }
 
     /**
+     * @Route("/admin/{id}/edit", name="dynamic_form_edit", methods={"GET","POST"})
+     */
+    public function edit(Request $request, DynamicForm $dynamicForm): Response
+    {
+        $form = $this->createForm(DynamicFormType::class, $dynamicForm);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $files = $request->files->get('dynamic_form')['file'];
+
+            $this->entityManager->flush();
+
+            $response = $this->customFileManager->saveImages($files,$dynamicForm); //image saving service
+            
+            $this->addFlash('message', 'Form edit successful');
+
+            return $this->redirectToRoute('dynamic_form_index');
+        }
+
+        return $this->render('dynamic_form/edit.html.twig', [
+            'dynamic_form' => $dynamicForm,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @Route("/admin/{id}", name="dynamic_form_show", methods={"GET"})
      */
-    public function show(DynamicForm $dynamicForm, QuestionRepository $questionRepository): Response
+    public function show(DynamicForm $dynamicForm): Response
     {
-        $questions = $questionRepository->findByForm($dynamicForm);
+        $questions = $this->questionRepository->findByForm($dynamicForm);
         
         return $this->render('dynamic_form/show.html.twig', [
             'questions' => $questions,
@@ -85,9 +144,9 @@ class DynamicFormController extends AbstractController
     /**
      * @Route("/admin/{id}/responses", name="dynamic_form_show_responses", methods={"GET"})
      */
-    public function showResponses(DynamicForm $dynamicForm, ResponseRepository $responseRepository): Response
+    public function showResponses(DynamicForm $dynamicForm): Response
     {
-        $responses = $responseRepository->findResponses($dynamicForm);
+        $responses = $this->responseRepository->findResponses($dynamicForm);
         
         return $this->render('dynamic_form/show_responses.html.twig', [
             'responses' => $responses,
@@ -100,7 +159,7 @@ class DynamicFormController extends AbstractController
     /**
      * @Route("/admin/show/new-question/{form}", name="dynamic_form_question", methods={"GET","POST"})
      */
-    public function addQuestion(Request $request,DynamicForm $form, QuestionRepository $questionRepository): Response
+    public function addQuestion(Request $request,DynamicForm $form): Response
     {
         $question = new Question();
         $questionForm = $this->createForm(QuestionType::class, $question);
@@ -109,7 +168,7 @@ class DynamicFormController extends AbstractController
         if ($request->isMethod('POST')) {
             
             if($request->request->get('type') == 'DATETIME-PICKER'){
-                $result = $questionRepository->findBy(
+                $result = $this->questionRepository->findBy(
                     ['type' => 'DATETIME-PICKER', 'form' => $form]
                 );
                 if($result){
@@ -125,9 +184,8 @@ class DynamicFormController extends AbstractController
             $question->setType($request->request->get('type'));
             $question->setForm($form);
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($question);
-            $entityManager->flush();
+            $this->entityManager->persist($question);
+            $this->entityManager->flush();
 
             $responseHtml = $this->renderView('question/_show_question.html.twig', [
                 'question' => $question,
@@ -143,26 +201,6 @@ class DynamicFormController extends AbstractController
 
         return $this->render('question/_new_question.html.twig', [
             'form' => $questionForm->createView()
-        ]);
-    }
-
-    /**
-     * @Route("/admin/{id}/edit", name="dynamic_form_edit", methods={"GET","POST"})
-     */
-    public function edit(Request $request, DynamicForm $dynamicForm): Response
-    {
-        $form = $this->createForm(DynamicFormType::class, $dynamicForm);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('dynamic_form_index');
-        }
-
-        return $this->render('dynamic_form/edit.html.twig', [
-            'dynamic_form' => $dynamicForm,
-            'form' => $form->createView(),
         ]);
     }
 
@@ -183,23 +221,23 @@ class DynamicFormController extends AbstractController
     /**
      * @Route("/user/", name="dynamic_form_index_user", methods={"GET"})
      */
-    public function indexUser(Request $request, DynamicFormRepository $dynamicFormRepository): Response
+    public function indexUser(Request $request): Response
     {
         return $this->render('user/index.html.twig', [
-            'dynamic_forms' => $dynamicFormRepository->findBy(['isActive' => 1]),
+            'dynamic_forms' => $this->dynamicFormRepository->findBy(['isActive' => 1]),
         ]);
     }
 
     /**
      * @Route("/user/{id}", name="dynamic_form_user_show", methods={"GET","POST"})
      */
-    public function showUser(DynamicForm $dynamicForm, ResponseRepository $responseRepository, QuestionRepository $questionRepository, QuestionChoiceRepository $questionChoiceRepository, Request $request): Response
+    public function showUser(DynamicForm $dynamicForm, Request $request): Response
     {
         
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $questions = $questionRepository->findByForm($dynamicForm);
+        $questions = $this->questionRepository->findByForm($dynamicForm);
 
-        $responses = $responseRepository->findBy(
+        $responses = $this->responseRepository->findBy(
             ['user' => $user, 'form' => $dynamicForm]
         );
         
@@ -210,8 +248,6 @@ class DynamicFormController extends AbstractController
                 'dynamic_form' => $dynamicForm,
             ]);
         }
-        
-        $entityManager = $this->getDoctrine()->getManager();
         
         if($request->isMethod('POST'))
         {
@@ -234,17 +270,19 @@ class DynamicFormController extends AbstractController
                         {
                             $answerString = $postResponse;
                         } else {
-                            $choice = $questionChoiceRepository->find($postResponse);
+                            $choice = $this->questionChoiceRepository->find($postResponse);
                             $answerString = $answerString ? $answerString.' ,'.$choice->getChoice() : $answerString.$choice->getChoice();
                         }    
                     }
 
                     $response->setAnswer($answerString);
-                    $entityManager->persist($response);
-                    $entityManager->flush();
+                    $this->entityManager->persist($response);
+                    $this->entityManager->flush();
                 }
                 
             }
+
+            $this->addFlash('message', 'Your response has been saved. You can check your response by revisiting the form.');
             return $this->redirectToRoute('dynamic_form_index_user');
 
         }

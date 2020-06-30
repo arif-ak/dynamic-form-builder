@@ -27,5 +27,9 @@ services:
         class: App\Service\MailManager
         arguments: ["@doctrine.orm.entity_manager" ,"@mailer","@templating"]
 
+    custom_file_manager:
+        class: App\Services\CustomFileManager
+        arguments: ["@doctrine.orm.entity_manager" ]
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

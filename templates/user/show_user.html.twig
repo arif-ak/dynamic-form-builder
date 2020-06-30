@@ -29,7 +29,17 @@
             
         </tbody>
     </table>
-
+    
+    <div class="form-row m-3">
+        {% for image in dynamic_form.images %}
+            <div class="col-4 p-1">
+                <div class="">
+                    {# <a href={{ image.imageUrl }} target="_blank"> </a> #}
+                    <img class="" src=/{{ image.thumbnailUrl }}  alt="image">
+                </div>
+            </div>
+        {% endfor %}
+    </div>
     <div class="form-row">
         <div class="col-8 text-center"><h5>Question</h5></div>
         <div class="col-4 text-center"><h5>Response</h5></div>

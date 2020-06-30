@@ -15,9 +15,32 @@
         <div class="col-4">
             {{ form_row(form.uniqueId) }}
         </div>
+        <div class="col-10">
+        {{ form_start(form) }}
+            
+            {{ form_widget(form.file, {
+                attr: {
+                    'placeholder': 'Click to upload image(s)'
+                }
+                }) 
+            }}
+        </div>
+        <div class="col-2 mt-2">
+            {{ form_row(form.isActive) }}
+        </div>
     </div>
-    {{ form_row(form.isActive) }}
+    
     <button class="btn btn-success">{{ button_label|default('Save') }}</button>
     <a class="btn btn-dark ml-1" href="{{ path('dynamic_form_index') }}">Back to list</a>
 
 {{ form_end(form) }}
+
+<script>
+    $('.custom-file-input').on('change', function(event) {
+        var inputFile = event.currentTarget;
+        var fileCount = inputFile.files.length;
+        $(inputFile).parent()
+            .find('.custom-file-label')
+            .html(fileCount + ' files selected');
+    });
+</script>

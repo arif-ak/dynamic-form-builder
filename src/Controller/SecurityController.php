@@ -98,7 +98,7 @@ class SecurityController extends AbstractController
             $user->setFirstName('Admin');
             $user->setLastName('User');
             $user->setEmail('admin@company.com');
-            $user->setRoles(['ROLE_USER','ROLE_ADMIN']);
+            $user->setRoles(['ROLE_ADMIN']);
         }
 
         $password = $user->generatePassword('password'); //function modified to stop random password generation for demo app
@@ -142,10 +142,9 @@ class SecurityController extends AbstractController
                 $em->persist($user);
                 $em->flush();
                 $mailManager->registrationMail($user);
-                $this->get('session')->getFlashBag()->set(
-                    'flashSuccess',
-                    $user->getFirstname() . ' account successfully created'
-                );
+                
+                $this->addFlash('message', "Registration successful. Password for '".$user->getEmail()."' is '". $password ."'");
+
                 return $this->redirectToRoute('app_login');
         }
 

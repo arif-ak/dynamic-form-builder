@@ -6,7 +6,7 @@ use App\Entity\DynamicForm;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\{TextType,ButtonType};
+use Symfony\Component\Form\Extension\Core\Type\{TextType,ButtonType,FileType};
 
 class DynamicFormType extends AbstractType
 {
@@ -29,6 +29,13 @@ class DynamicFormType extends AbstractType
             ->add('salesPrice')
             ->add('uniqueId')
             ->add('isActive')
+            ->add('file',FileType::class, [
+                'mapped' => false,
+                'multiple' => true,
+                'label' => 'Upload files',
+                'required'   => false
+                ]
+            )
         ;
     }
 
